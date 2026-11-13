@@ -1,0 +1,127 @@
+@startuml
+title Gestion des vols et réservations - Agence de voyage
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class Passager {
+  - idPassager : int
+  - nom : string
+  - prenom : string
+  - telephone : string
+  - email : string
+  - numeroPiece : string
+  + Passager(...)
+  + ModifierCoordonnees(...)
+  + AfficherInformations() : string
+}
+
+class Vol {
+  - numeroVol : string
+  - villeDepart : string
+  - villeArrivee : string
+  - dateHeureDepart : DateTime
+  - dateHeureArrivee : DateTime
+  - capacite : int
+  - prixBase : decimal
+  - statut : StatutVol
+  + Vol(...)
+  + PlacesDisponibles() : int
+  + EstDisponible() : bool
+  + ModifierInformations(...)
+}
+
+class Reservation {
+  - reference : string
+  - dateReservation : DateTime
+  - classe : ClasseVoyage
+  - statut : StatutReservation
+  - montant : decimal
+  + Reservation(...)
+  + Valider() : bool
+  + Annuler() : bool
+  + EstPayable() : bool
+  + CalculerMontant() : decimal
+}
+
+class Paiement {
+  - idPaiement : int
+  - datePaiement : DateTime
+  - montant : decimal
+  - mode : ModePaiement
+  - statut : StatutPaiement
+  + Paiement(...)
+  + Enregistrer() : bool
+  + MarquerRembourse() : void
+}
+
+class Remboursement {
+  - idRemboursement : int
+  - dateDemande : DateTime
+  - montant : decimal
+  - statut : StatutRemboursement
+  + Remboursement(...)
+  + Traiter() : bool
+}
+
+class AgenceVoyage {
+  - passagers : List<Passager>
+  - vols : List<Vol>
+  - reservations : List<Reservation>
+  - paiements : List<Paiement>
+  + EnregistrerPassager(...) : Passager
+  + AjouterVol(...) : Vol
+  + RechercherVol(...) : List<Vol>
+  + CreerReservation(...) : Reservation
+  + EnregistrerPaiement(...) : Paiement
+  + AnnulerReservation(reference) : bool
+  + ConsulterReservations(...) : List<Reservation>
+}
+
+enum ClasseVoyage {
+  Economique
+  Affaires
+  Premiere
+}
+enum StatutReservation {
+  EnAttente
+  Validee
+  Annulee
+}
+enum StatutVol {
+  Programme
+  Annule
+  Termine
+}
+enum ModePaiement {
+  Especes
+  Carte
+  MobileMoney
+  Virement
+}
+enum StatutPaiement {
+  Enregistre
+  Echoue
+  Rembourse
+}
+enum StatutRemboursement {
+  NonApplicable
+  EnAttente
+  Accepte
+  Refuse
+  Effectue
+}
+
+AgenceVoyage "1" o-- "0..*" Passager : gere
+AgenceVoyage "1" o-- "0..*" Vol : gere
+AgenceVoyage "1" o-- "0..*" Reservation : gere
+Passager "1" -- "0..*" Reservation : effectue
+Vol "1" -- "0..*" Reservation : concerne
+Reservation "1" *-- "0..*" Paiement : paiements
+Paiement "1" -- "0..1" Remboursement : remboursement
+Reservation ..> ClasseVoyage
+Reservation ..> StatutReservation
+Vol ..> StatutVol
+Paiement ..> ModePaiement
+Paiement ..> StatutPaiement
+Remboursement ..> StatutRemboursement
+@enduml
